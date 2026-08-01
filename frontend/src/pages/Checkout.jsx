@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
 
 // 1. Initialize Stripe (REPLACE THIS WITH YOUR PK_TEST KEY!)
 const stripePromise = loadStripe('pk_test_51TxuPsQhdDte6KL9NqSIV5wrbv7WHzBNWZpc9SLK9deaPjQPGgChyVUFdNZzyLIUkYAXK0HNRRzjTzgd3JScznk600OAGC08js');
@@ -62,15 +63,20 @@ export default function Checkout() {
   const { token } = useAuth();
   
   const [clientSecret, setClientSecret] = useState('');
+  const [reservationId,setReservationId] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
+    if(hasInitialized.current) return;
     if (!selectedSeats || !showtimeId) {
       setError("No seats selected. Please go back.");
       setLoading(false);
       return;
     }
+    hasInitialized.current=true;
 
     const createReservation = async () => {
       try {

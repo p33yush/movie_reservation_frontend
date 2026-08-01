@@ -70,12 +70,14 @@ export default function SeatSelection(){
   };
   // Helper function to color the seats dynamically
   const getSeatColor = (seat) => {
-    if (seat.status === 'RESERVED') return '#334155'; // Dark gray/disabled
+    if (seat.status === 'RESERVED') return '#772f2fff'; // Dark gray/disabled
     if (selectedSeats.find(s => s.id === seat.id)) return '#22c55e'; // Green if selected
     return 'var(--glass-bg)'; // Default available
   };
   if (loading) return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Loading Seat Map...</h2>;
-  if (!seatMap) return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Seat map not found</h2>;
+    if (seatMap && Object.keys(seatMap.seats).length === 0) {
+    return <h2 style={{ textAlign: 'center', marginTop: '50px', color: 'var(--text-muted)' }}>No seat map configured for this screen.</h2>;
+  }
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>{seatMap.screenName}</h1>

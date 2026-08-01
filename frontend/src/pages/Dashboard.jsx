@@ -2,9 +2,40 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
-  const { token, user } = useAuth();
+  const { token, user, setUser } = useAuth();
   const [reservations, setReservations] = useState({ upcoming: [], past: [] });
   const [loading, setLoading] = useState(true);
+  const [isEditing,setIsEditing]=useState(false);
+  const [editFormData, setEditFormData]=useState({name:'',email:''});
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:3000/api/users/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editFormData)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUser(data.data); // Update global user state (Header will update!)
+        setIsEditing(false); // Close form
+      }
+    } catch (error) {
+      console.error("Failed to update profile", error);
+    }
+  };
+  
+  // Helper to open the form pre-filled with current data
+  const handleEditClick = () => {
+    setEditFormData({ name: user.name || '', email: user.email || '' });
+    setIsEditing(true);
+  };
+
+
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -78,18 +109,48 @@ export default function Dashboard() {
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
 
       {/* PROFILE SECTION */}
-      <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
         <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>
           {user?.name?.charAt(0).toUpperCase() || '?'}
         </div>
-        <div>
-          <h2 style={{ margin: 0 }}>{user?.name || 'Movie Buff'}</h2>
-          <p style={{ color: 'var(--text-muted)', margin: '5px 0 0' }}>{user?.email}</p>
-          <p style={{ color: 'var(--text-muted)', margin: '3px 0 0', fontSize: '0.85rem' }}>
-            Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : 'Unknown'}
-          </p>
+        
+        <div style={{ flex: '1' }}>
+          {!isEditing ? (
+            <>
+              <h2 style={{ margin: 0 }}>{user?.name || 'Movie Buff'}</h2>
+              <p style={{ color: 'var(--text-muted)', margin: '5px 0 0' }}>{user?.email}</p>
+              <p style={{ color: 'var(--text-muted)', margin: '3px 0 0', fontSize: '0.85rem' }}>
+                Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
+              </p>
+              <button onClick={handleEditClick} className="btn-primary" style={{ marginTop: '10px', padding: '5px 15px', borderRadius: '5px', fontSize: '0.9rem' }}>
+                Edit Profile
+              </button>
+            </>
+          ) : (
+            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+              <input 
+                type="text" 
+                value={editFormData.name} 
+                onChange={(e) => setEditFormData({...editFormData, name: e.target.value})} 
+                className="input-field" 
+                required 
+              />
+              <input 
+                type="email" 
+                value={editFormData.email} 
+                onChange={(e) => setEditFormData({...editFormData, email: e.target.value})} 
+                className="input-field" 
+                required 
+              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn-primary" style={{ padding: '8px 15px', borderRadius: '5px', flex: '1' }}>Save</button>
+                <button type="button" onClick={() => setIsEditing(false)} style={{ padding: '8px 15px', borderRadius: '5px', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--glass-border)', color: 'white', flex: '1' }}>Cancel</button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
+
 
       {/* UPCOMING TICKETS */}
       <h2>Upcoming Tickets</h2>
