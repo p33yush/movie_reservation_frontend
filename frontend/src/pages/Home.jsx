@@ -5,19 +5,23 @@ export default function Home() {
   const [movies, setMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedGenre,setSelectedGenre] = useState('');
+
+
+  const genres = ['All', 'Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Thriller', 'Romance'];
+
 
   // Function to fetch movies from our backend
-  const fetchMovies = async (query = '') => {
+  const fetchMovies = async (query = '', genre = '') => {
     setLoading(true);
     try {
-      // If there's a search query, append it to the URL! (Testing our Day 7 Backend Logic)
-      const url = query 
-        ? `http://localhost:3000/api/movies?search=${query}` 
-        : `http://localhost:3000/api/movies`;
-        
+      let url = `http://localhost:3000/api/movies?`;
+      if (query) url += `search=${query}&`;
+      if (genre && genre !== 'All') url += `genre=${genre}`;
+
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (data.success) {
         setMovies(data.data.movies);
       }
@@ -28,6 +32,7 @@ export default function Home() {
     }
   };
 
+
   // Run this once when the page first loads
   useEffect(() => {
     fetchMovies();
@@ -35,8 +40,14 @@ export default function Home() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchMovies(searchQuery);
+    fetchMovies(searchQuery,selectedGenre);
   };
+
+  const handleGenreClick = (genre) => {
+    setSelectedGenre(genre);
+    fetchMovies(searchQuery, genre);
+  };
+
 
   if (loading && movies.length === 0) {
     return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Loading Movies...</h2>;
@@ -61,6 +72,29 @@ export default function Home() {
           </button>
         </form>
       </div>
+
+            {/* GENRE FILTERS */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+        {genres.map(genre => (
+          <button
+            key={genre}
+            onClick={() => handleGenreClick(genre)}
+            style={{
+              padding: '8px 18px',
+              borderRadius: '20px',
+              border: '1px solid var(--glass-border)',
+              backgroundColor: selectedGenre === genre ? 'var(--primary)' : 'var(--bg-surface)',
+              color: selectedGenre === genre ? 'white' : 'var(--text-muted)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              fontWeight: selectedGenre === genre ? 'bold' : 'normal'
+            }}
+          >
+            {genre}
+          </button>
+        ))}
+      </div>
+
 
       {/* MOVIE GRID */}
       {movies.length === 0 ? (

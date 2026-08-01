@@ -1,26 +1,80 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import {AuthProvider} from './context/AuthContext';
+import {AuthProvider, useAuth} from './context/AuthContext';
+import MovieDetails from './pages/MovieDetails';
+import SeatSelection from './pages/SeatSelection';
+import Checkout from './pages/Checkout';
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminMovies from './pages/admin/AdminMovies';
+import NotFound from './pages/NotFound';
+import Footer from './components/Footer';
+import AuthPage from './pages/AuthPage';
+import AdminVenues from './pages/admin/AdminVenues';
+import AdminShowtimes from './pages/admin/AdminShowtimes';
+import BookingConfirmation from './pages/BookingConfirmation';
+
+function Header(){
+  const {user,logout}=useAuth();
+  const navigate=useNavigate();
+
+  return(
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: 'var(--bg-surface)', borderBottom: '1px solid var(--glass-border)' }}>
+        {user?.role === 'ADMIN' && (
+          <Link to="/admin/dashboard" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 'bold' }}>Admin Panel</Link>
+        )}
+
+      <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none', letterSpacing: '2px' }}>
+        MOVIERES
+      </Link>
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+        {user ? (
+          <>
+            <Link to="/dashboard" style={{ color: 'var(--text-main)', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard</Link>
+            <button onClick={() => { logout(); navigate('/auth'); }} className="btn-primary" style={{ padding: '8px 15px', fontSize: '0.9rem', borderRadius: '10px' }}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            
+            <Link to="/auth" className="btn-primary" style={{ padding: '8px 15px', fontSize: '0.9rem', borderRadius: '10px', textDecoration: 'none' }}>
+              Sign In
+            </Link>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <nav style={{ padding: '20px', backgroundColor: 'var(--bg-surface)', display: 'flex', gap: '20px' }}>
-          <Link to="/" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Cinema Express</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
-        </nav>
-
+      
+        
+        <Header/>
         <div style={{ padding: '40px' }}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/movies/:id" element={<MovieDetails />} />
+            <Route path="/showtimes/:id" element={<SeatSelection />} />
+            <Route path="/checkout" element = {<Checkout />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/movies" element={<ProtectedRoute adminOnly={true}><AdminMovies /></ProtectedRoute>} />
+            <Route path="/admin/venues" element={<ProtectedRoute adminOnly={true}><AdminVenues /></ProtectedRoute>} />
+            <Route path="/admin/showtimes" element={<ProtectedRoute adminOnly={true}><AdminShowtimes /></ProtectedRoute>} />
+            <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
+
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
+
+        <Footer />
       </BrowserRouter>
     </AuthProvider>
   );
