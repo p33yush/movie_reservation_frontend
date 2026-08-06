@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import MovieCard from '../components/MovieCard';
 
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
+
+
 export default function Home() {
   const [movies, setMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,18 +63,35 @@ export default function Home() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 style={{ fontSize: '2rem', color: 'var(--text-main)' }}>Now Showing</h1>
         
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
-          <input 
+                <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+          <Input 
             type="text" 
             placeholder="Search movies..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ padding: '10px 15px', borderRadius: '20px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--glass-bg)', color: 'white', outline: 'none', width: '250px' }}
+            style={{ 
+              width: '300px', 
+              height: '44px', 
+              borderRadius: '30px', 
+              backgroundColor: '#1D2330', 
+              border: '1px solid rgba(255,255,255,0.08)',
+              paddingLeft: '20px',
+              color: 'white'
+            }}
           />
-          <button type="submit" className="btn-primary" style={{ padding: '10px 20px', borderRadius: '20px' }}>
+          <Button 
+            type="submit"
+            style={{ 
+              height: '44px', 
+              borderRadius: '30px', 
+              backgroundColor: '#E50914', 
+              padding: '0 18px' 
+            }}
+          >
             Search
-          </button>
+          </Button>
         </form>
+
       </div>
 
             {/* GENRE FILTERS */}
@@ -79,16 +100,7 @@ export default function Home() {
           <button
             key={genre}
             onClick={() => handleGenreClick(genre)}
-            style={{
-              padding: '8px 18px',
-              borderRadius: '20px',
-              border: '1px solid var(--glass-border)',
-              backgroundColor: selectedGenre === genre ? 'var(--primary)' : 'var(--bg-surface)',
-              color: selectedGenre === genre ? 'white' : 'var(--text-muted)',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              fontWeight: selectedGenre === genre ? 'bold' : 'normal'
-            }}
+            className={`genre-chip ${selectedGenre === genre ? 'active' : ''}`}
           >
             {genre}
           </button>
@@ -98,7 +110,7 @@ export default function Home() {
 
       {/* MOVIE GRID */}
       {movies.length === 0 ? (
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No movies found matching "{searchQuery}"</p>
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No movies found matching {searchQuery}</p>
       ) : (
         <div className="movie-grid">
           {movies.map(movie => (

@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
+import Card from '../../components/ui/Card';
+import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Button from '../../components/ui/Button';
+
+
+
 export default function AdminShowtimes() {
   const { token } = useAuth();
   const [movies, setMovies] = useState([]);
@@ -106,11 +113,6 @@ export default function AdminShowtimes() {
     fetchShowtimes();
   }, [filterDate,filterMovieId]);
 
-  const inputStyle = {
-    width: '100%', padding: '12px', borderRadius: '8px',
-    border: '1px solid var(--glass-border)',
-    backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none'
-  };
 
   
   return (
@@ -126,29 +128,29 @@ export default function AdminShowtimes() {
       </div>
 
       {/* CREATE SHOWTIME FORM */}
-      <div className="glass-panel" style={{ padding: '30px', marginBottom: '40px' }}>
+      <Card style={{ padding: '30px', marginBottom: '40px' }}>
         <h2 style={{ marginBottom: '20px' }}>Schedule a Showtime</h2>
         <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-          <select required value={movieId} onChange={e => setMovieId(e.target.value)} style={inputStyle}>
+          <Select required value={movieId} onChange={e => setMovieId(e.target.value)} >
             <option value="">Select Movie</option>
             {movies.filter(m=>m.status ==='NOW_SHOWING').map(m => (
               <option key={m.id} value={m.id}>{m.title}</option>
             ))}
-          </select>
+          </Select>
 
-          <select required value={screenId} onChange={e => setScreenId(e.target.value)} style={inputStyle}>
+          <Select required value={screenId} onChange={e => setScreenId(e.target.value)} >
             <option value="">Select Screen</option>
             {allScreens.map(s => (
               <option key={s.id} value={s.id}>{s.label}</option>
             ))}
-          </select>
+          </Select>
 
-          <input type="datetime-local" required value={startTime} onChange={e => setStartTime(e.target.value)} style={inputStyle} />
-          <input type="number" step="0.01" placeholder="Ticket Price (₹)" required value={price} onChange={e => setPrice(e.target.value)} style={inputStyle} />
+          <Input type="datetime-local" required value={startTime} onChange={e => setStartTime(e.target.value)}  />
+          <Input type="number" step="0.01" placeholder="Ticket Price (₹)" required value={price} onChange={e => setPrice(e.target.value)}  />
 
-          <button type="submit" className="btn-primary" style={{ padding: '15px', borderRadius: '10px', gridColumn: 'span 2' }}>Create Showtime</button>
+          <Button type="submit" style={{ padding: '15px', borderRadius: '10px', gridColumn: 'span 2' }}>Create Showtime</Button>
         </form>
-      </div>
+      </Card>
 
             {/* SHOWTIMES LIST */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
@@ -161,7 +163,7 @@ export default function AdminShowtimes() {
             onChange={e => setFilterDate(e.target.value)} 
             style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }} 
           />
-          <select 
+          <Select 
             value={filterMovieId} 
             onChange={e => setFilterMovieId(e.target.value)} 
             style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }}
@@ -170,7 +172,7 @@ export default function AdminShowtimes() {
             {movies.filter(m=>m.status==='NOW_SHOWING').map(m => (
               <option key={m.id} value={m.id}>{m.title}</option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -182,9 +184,9 @@ export default function AdminShowtimes() {
                 {st.screen?.theatre?.name} — {st.screen?.name} • {new Date(st.startTime).toLocaleString()} • ₹{parseFloat(st.price).toFixed(2)}
               </p>
             </div>
-            <button onClick={() => handleDelete(st.id)} style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+            <Button onClick={() => handleDelete(st.id)} style={{ padding: '8px 15px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
               Delete
-            </button>
+            </Button>
           </div>
         ))}
       </div>

@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
+import Card from '../../components/ui/Card';
+import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Button from '../../components/ui/Button';
+
+
+
 export default function AdminMovies() {
   const { token } = useAuth();
   const [movies, setMovies] = useState([]);
@@ -107,39 +114,39 @@ export default function AdminMovies() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px' }}>
         
         {/* ADD MOVIE FORM */}
-        <div className="glass-panel" style={{ padding: '30px', height: 'fit-content' }}>
+        <Card style={{ height: 'fit-content' }}>
           <h2 style={{ marginBottom: '20px' }}>Add New Movie</h2>
           <form onSubmit={handleCreateMovie} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <input type="text" placeholder="Movie Title" required value={title} onChange={e => setTitle(e.target.value)} className="form-input" />
-            <input type="number" placeholder="Duration (mins)" required value={duration} onChange={e => setDuration(e.target.value)} className="form-input" />
-            <input type="number" step="0.1" placeholder="Rating (0-10)" required value={rating} onChange={e => setRating(e.target.value)} className="form-input" />
-            <input type="text" placeholder="Genre (e.g. Action, Sci-Fi)" value={genre} onChange={e => setGenre(e.target.value)} className="form-input" />
-            <input type="date" placeholder="Release Date" value={releaseDate} onChange={e => setReleaseDate(e.target.value)} className="form-input" />
-            <input type="text" placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} className="form-input" />
-            <select value={status} onChange={e => setStatus(e.target.value)} className="form-input">
+            <Input type="text" placeholder="Movie Title" required value={title} onChange={e => setTitle(e.target.value)} />
+            <Input type="number" placeholder="Duration (mins)" required value={duration} onChange={e => setDuration(e.target.value)}  />
+            <Input type="number" step="0.1" placeholder="Rating (0-10)" required value={rating} onChange={e => setRating(e.target.value)}  />
+            <Input type="text" placeholder="Genre (e.g. Action, Sci-Fi)" value={genre} onChange={e => setGenre(e.target.value)} />
+            <Input type="date" placeholder="Release Date" value={releaseDate} onChange={e => setReleaseDate(e.target.value)} />
+            <Input type="text" placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
+            <Select value={status} onChange={e => setStatus(e.target.value)}>
               <option value="COMING_SOON">Coming Soon</option>
               <option value="NOW_SHOWING">Now Showing</option>
               <option value="ENDED">Ended</option>
-            </select>
-            <input type="url" placeholder="Poster Image URL" value={posterUrl} onChange={e => setPosterUrl(e.target.value)} className="form-input" />
+            </Select>
+            <Input type="url" placeholder="Poster Image URL" value={posterUrl} onChange={e => setPosterUrl(e.target.value)}  />
             
-            <button type="submit" className="btn-primary" style={{ padding: '15px', marginTop: '10px', borderRadius: '10px' }}>Add Movie to Database</button>
+            <Button type="submit" style={{ padding: '15px', marginTop: '10px', borderRadius: '10px' }}>Add Movie to Database</Button>
           </form>
-        </div>
+        </Card>
 
         {/* MOVIE LIST */}
-                <div className="glass-panel" style={{ padding: '30px' }}>
+        <Card style={{ padding: '30px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
             <h2 style={{ margin: 0 }}>Movie Catalog</h2>
             <div style={{ display: 'flex', gap: '15px' }}>
-              <input 
+              <Input 
                 type="text" 
                 placeholder="Search titles..." 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
-                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }} 
+                
               />
-              <select 
+              <Select
                 value={filterGenre} 
                 onChange={e => setFilterGenre(e.target.value)} 
                 style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }}
@@ -151,7 +158,7 @@ export default function AdminMovies() {
                 <option value="Thriller">Thriller</option>
                 <option value="Horror">Horror</option>
                 <option value="Comedy">Comedy</option>
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -166,13 +173,13 @@ export default function AdminMovies() {
                   </div>
                 </div>
                 
-                <button onClick={() => handleDelete(movie.id)} style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+                <Button onClick={() => handleDelete(movie.id)} style={{ padding: '8px 15px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
                   Delete
-                </button>
+                </Button>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
       </div>
     </div>

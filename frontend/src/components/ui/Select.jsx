@@ -1,0 +1,10 @@
+export default function Select({ children, className = '', ...props }) {
+  return (
+    <select 
+      className={`form-input ${className}`}
+      {...props} 
+    >
+      {children}
+    </select>
+  );
+}

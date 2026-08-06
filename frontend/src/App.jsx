@@ -20,29 +20,37 @@ function Header(){
   const navigate=useNavigate();
 
   return(
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', backgroundColor: 'var(--bg-surface)', borderBottom: '1px solid var(--glass-border)' }}>
-        {user?.role === 'ADMIN' && (
-          <Link to="/admin/dashboard" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 'bold' }}>Admin Panel</Link>
-        )}
-
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      height: '72px',
+      padding: '0 40px', 
+      backgroundColor: 'rgba(20,20,24,0.8)', 
+      backdropFilter: 'blur(18px)',
+      WebkitBackdropFilter: 'blur(18px)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)' 
+    }}>
       <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none', letterSpacing: '2px' }}>
         MOVIERES
       </Link>
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+      
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+        {user?.role === 'ADMIN' && (
+          <Link to="/admin/dashboard" className="nav-link">Admin Panel</Link>
+        )}
+
         {user ? (
           <>
-            <Link to="/dashboard" style={{ color: 'var(--text-main)', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard</Link>
+            <Link to="/dashboard" className="nav-link">Dashboard</Link>
             <button onClick={() => { logout(); navigate('/auth'); }} className="btn-primary" style={{ padding: '8px 15px', fontSize: '0.9rem', borderRadius: '10px' }}>
               Logout
             </button>
           </>
         ) : (
-          <>
-            
-            <Link to="/auth" className="btn-primary" style={{ padding: '8px 15px', fontSize: '0.9rem', borderRadius: '10px', textDecoration: 'none' }}>
-              Sign In
-            </Link>
-          </>
+          <Link to="/auth" className="btn-primary" style={{ padding: '8px 15px', fontSize: '0.9rem', borderRadius: '10px', textDecoration: 'none' }}>
+            Sign In
+          </Link>
         )}
       </div>
     </div>
