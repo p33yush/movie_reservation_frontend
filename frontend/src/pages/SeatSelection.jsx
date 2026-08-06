@@ -129,10 +129,10 @@ export default function SeatSelection(){
         <div style={{ fontSize: '1.1rem' }}>
           <div>Selected Seats: <strong>{selectedSeats.length}</strong></div>
           <div style={{ color: 'var(--text-muted)', marginTop: '5px' }}>
-            Price per seat: <strong style={{ color: '#4ade80' }}>${parseFloat(price).toFixed(2)}</strong>
+            Price per seat: <strong style={{ color: '#4ade80' }}>₹{parseFloat(price).toFixed(2)}</strong>
           </div>
           <div style={{ fontSize: '1.3rem', marginTop: '5px' }}>
-            Total: <strong style={{ color: '#4ade80' }}>${(parseFloat(price) * selectedSeats.length).toFixed(2)}</strong>
+            Total: <strong style={{ color: '#4ade80' }}>₹{(parseFloat(price) * selectedSeats.length).toFixed(2)}</strong>
           </div>
         </div>
         <button 

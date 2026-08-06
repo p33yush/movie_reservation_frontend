@@ -8,13 +8,24 @@ export default function AdminMovies() {
   
   // Form state for creating a new movie
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [duration, setDuration] = useState('');
+  const [releaseDate,setReleaseDate] = useState('');
+  const [genre,setGenre] = useState('');
   const [rating, setRating] = useState('');
   const [posterUrl, setPosterUrl] = useState('');
+  const [status,setStatus] = useState('COMING_SOON');
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterGenre, setFilterGenre] = useState('');
 
   const fetchMovies = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/movies');
+      let url ='http://localhost:3000/api/movies?';
+      if (searchQuery) url += `search=${searchQuery}&`;
+      if (filterGenre) url += `genre=${filterGenre}`;
+
+      const response=await fetch(url);
       const data = await response.json();
       if (data.success) {
         setMovies(data.data.movies);
@@ -26,12 +37,11 @@ export default function AdminMovies() {
 
   useEffect(() => {
     fetchMovies();
-  }, []);
+  }, [searchQuery,filterGenre]);
 
-  const handleCreateMovie = async (e) => {
+    const handleCreateMovie = async (e) => {
     e.preventDefault();
     try {
-      // 1. Send the new movie to our secure backend endpoint using the Admin token
       const response = await fetch('http://localhost:3000/api/movies', {
         method: 'POST',
         headers: {
@@ -39,16 +49,18 @@ export default function AdminMovies() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          title,
+          title, description, genre, releaseDate, status,
           duration: parseInt(duration),
           rating: parseFloat(rating),
           posterUrl
         })
       });
+      
       const data = await response.json();
       if (data.success) {
         alert("Movie added successfully!");
-        setTitle(''); setDuration(''); setRating(''); setPosterUrl('');
+        // Clear all the inputs
+        setTitle(''); setDescription(''); setDuration(''); setRating(''); setPosterUrl(''); setReleaseDate(''); setGenre('');
         fetchMovies(); // Refresh the list instantly
       } else {
         alert(data.error || "Failed to add movie");
@@ -68,6 +80,10 @@ export default function AdminMovies() {
       });
       if (response.ok) {
         fetchMovies(); 
+      } else {
+        // ADD THIS ELSE BLOCK!
+        const errorData = await response.json();
+        alert(errorData.error || "Failed to delete movie.");
       }
     } catch (err) {
       alert("Failed to delete");
@@ -97,6 +113,14 @@ export default function AdminMovies() {
             <input type="text" placeholder="Movie Title" required value={title} onChange={e => setTitle(e.target.value)} className="form-input" />
             <input type="number" placeholder="Duration (mins)" required value={duration} onChange={e => setDuration(e.target.value)} className="form-input" />
             <input type="number" step="0.1" placeholder="Rating (0-10)" required value={rating} onChange={e => setRating(e.target.value)} className="form-input" />
+            <input type="text" placeholder="Genre (e.g. Action, Sci-Fi)" value={genre} onChange={e => setGenre(e.target.value)} className="form-input" />
+            <input type="date" placeholder="Release Date" value={releaseDate} onChange={e => setReleaseDate(e.target.value)} className="form-input" />
+            <input type="text" placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} className="form-input" />
+            <select value={status} onChange={e => setStatus(e.target.value)} className="form-input">
+              <option value="COMING_SOON">Coming Soon</option>
+              <option value="NOW_SHOWING">Now Showing</option>
+              <option value="ENDED">Ended</option>
+            </select>
             <input type="url" placeholder="Poster Image URL" value={posterUrl} onChange={e => setPosterUrl(e.target.value)} className="form-input" />
             
             <button type="submit" className="btn-primary" style={{ padding: '15px', marginTop: '10px', borderRadius: '10px' }}>Add Movie to Database</button>
@@ -104,8 +128,33 @@ export default function AdminMovies() {
         </div>
 
         {/* MOVIE LIST */}
-        <div className="glass-panel" style={{ padding: '30px' }}>
-          <h2 style={{ marginBottom: '20px' }}>Movie Catalog</h2>
+                <div className="glass-panel" style={{ padding: '30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+            <h2 style={{ margin: 0 }}>Movie Catalog</h2>
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <input 
+                type="text" 
+                placeholder="Search titles..." 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)} 
+                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }} 
+              />
+              <select 
+                value={filterGenre} 
+                onChange={e => setFilterGenre(e.target.value)} 
+                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }}
+              >
+                <option value="">All Genres</option>
+                <option value="Action">Action</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Drama">Drama</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Horror">Horror</option>
+                <option value="Comedy">Comedy</option>
+              </select>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             {movies.map(movie => (
               <div key={movie.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', backgroundColor: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--glass-border)' }}>

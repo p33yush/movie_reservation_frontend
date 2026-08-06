@@ -115,7 +115,7 @@ export default function MovieDetails() {
                       <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatTime(showtime.startTime)}</span>
                       <span style={{ fontSize: '0.9rem', opacity: '0.8' }}>{formatDate(showtime.startTime)}</span>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '5px' }}>{showtime.screen.name}</span>
-                      <span style={{ fontSize: '0.85rem', color: '#4ade80', fontWeight: 'bold', marginTop: '3px' }}>${parseFloat(showtime.price).toFixed(2)}</span>
+                      <span style={{ fontSize: '0.85rem', color: '#4ade80', fontWeight: 'bold', marginTop: '3px' }}>₹{parseFloat(showtime.price).toFixed(2)}</span>
                     </Link>
                   ))}
                 </div>

@@ -13,34 +13,31 @@ export default function AdminShowtimes() {
   const [screenId, setScreenId] = useState('');
   const [startTime, setStartTime] = useState('');
   const [price, setPrice] = useState('');
+  const [filterDate,setFilterDate]=useState('');
+  const [filterMovieId,setFilterMovieId]=useState('');
 
-  useEffect(() => {
-    fetchMovies();
-    fetchTheatres();
-    fetchShowtimes();
-  }, []);
-
-  const fetchMovies = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/movies');
-      const data = await response.json();
-      if (data.success) setMovies(data.data.movies);
-    } catch (err) { console.error(err); }
-  };
-
-  const fetchTheatres = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/theatres');
-      const data = await response.json();
-      if (data.success) setTheatres(data.data);
-    } catch (err) { console.error(err); }
-  };
-
+  
   const fetchShowtimes = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/showtimes');
+      // NEW: Apply query filters
+      let url = 'http://localhost:3000/api/showtimes?';
+      if (filterDate) url += `date=${filterDate}&`;
+      if (filterMovieId) url += `movieId=${filterMovieId}`;
+      const response = await fetch(url);
       const data = await response.json();
-      if (data.success) setShowtimes(data.data);
+      if (data.success) {
+        setShowtimes(data.data);
+      }
+    } catch (err) { console.error(err); }
+  };
+  const fetchMoviesAndTheatres = async () => {
+    try {
+      const mRes = await fetch('http://localhost:3000/api/movies');
+      const mData = await mRes.json();
+      if (mData.success) setMovies(mData.data.movies); // Used .movies here too!
+      const tRes = await fetch('http://localhost:3000/api/theatres');
+      const tData = await tRes.json();
+      if (tData.success) setTheatres(tData.data);
     } catch (err) { console.error(err); }
   };
 
@@ -76,11 +73,16 @@ export default function AdminShowtimes() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this showtime?')) return;
     try {
-      await fetch(`http://localhost:3000/api/showtimes/${id}`, {
+      const response=await fetch(`http://localhost:3000/api/showtimes/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      fetchShowtimes();
+      if(response.ok){
+        fetchShowtimes();
+      }else{
+        const errorData=await response.json();
+        alert(errorData.error || "Failed to delete showtime. There's a booked reservation for this.");
+      }
     } catch (err) {
       alert('Failed to delete');
     }
@@ -99,12 +101,18 @@ export default function AdminShowtimes() {
     }
   });
 
+  useEffect(() => {
+    fetchMoviesAndTheatres();
+    fetchShowtimes();
+  }, [filterDate,filterMovieId]);
+
   const inputStyle = {
     width: '100%', padding: '12px', borderRadius: '8px',
     border: '1px solid var(--glass-border)',
     backgroundColor: 'rgba(0,0,0,0.2)', color: 'white', outline: 'none'
   };
 
+  
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
@@ -123,7 +131,7 @@ export default function AdminShowtimes() {
         <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
           <select required value={movieId} onChange={e => setMovieId(e.target.value)} style={inputStyle}>
             <option value="">Select Movie</option>
-            {movies.map(m => (
+            {movies.filter(m=>m.status ==='NOW_SHOWING').map(m => (
               <option key={m.id} value={m.id}>{m.title}</option>
             ))}
           </select>
@@ -136,21 +144,42 @@ export default function AdminShowtimes() {
           </select>
 
           <input type="datetime-local" required value={startTime} onChange={e => setStartTime(e.target.value)} style={inputStyle} />
-          <input type="number" step="0.01" placeholder="Ticket Price ($)" required value={price} onChange={e => setPrice(e.target.value)} style={inputStyle} />
+          <input type="number" step="0.01" placeholder="Ticket Price (₹)" required value={price} onChange={e => setPrice(e.target.value)} style={inputStyle} />
 
           <button type="submit" className="btn-primary" style={{ padding: '15px', borderRadius: '10px', gridColumn: 'span 2' }}>Create Showtime</button>
         </form>
       </div>
 
-      {/* SHOWTIMES LIST */}
-      <h2 style={{ marginBottom: '20px' }}>All Showtimes</h2>
+            {/* SHOWTIMES LIST */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+        <h2 style={{ margin: 0 }}>All Showtimes</h2>
+        
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <input 
+            type="date" 
+            value={filterDate} 
+            onChange={e => setFilterDate(e.target.value)} 
+            style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }} 
+          />
+          <select 
+            value={filterMovieId} 
+            onChange={e => setFilterMovieId(e.target.value)} 
+            style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }}
+          >
+            <option value="">All Movies</option>
+            {movies.filter(m=>m.status==='NOW_SHOWING').map(m => (
+              <option key={m.id} value={m.id}>{m.title}</option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {showtimes.map(st => (
           <div key={st.id} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{st.movie?.title || 'Unknown Movie'}</h3>
               <p style={{ color: 'var(--text-muted)', margin: '5px 0 0' }}>
-                {st.screen?.theatre?.name} — {st.screen?.name} • {new Date(st.startTime).toLocaleString()} • ${parseFloat(st.price).toFixed(2)}
+                {st.screen?.theatre?.name} — {st.screen?.name} • {new Date(st.startTime).toLocaleString()} • ₹{parseFloat(st.price).toFixed(2)}
               </p>
             </div>
             <button onClick={() => handleDelete(st.id)} style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
@@ -159,7 +188,6 @@ export default function AdminShowtimes() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

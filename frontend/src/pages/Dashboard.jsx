@@ -7,6 +7,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isEditing,setIsEditing]=useState(false);
   const [editFormData, setEditFormData]=useState({name:'',email:''});
+  const [selectedTicket, setSelectedTicket]=useState(null);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -58,7 +59,17 @@ export default function Dashboard() {
 
   // Reusable ticket card — used for both upcoming and past
   const TicketCard = ({ res, isPast }) => (
-    <div className="glass-panel" style={{ display: 'flex', padding: '20px', gap: '20px', alignItems: 'center', flexWrap: 'wrap', opacity: isPast ? 0.6 : 1 }}>
+    <div 
+      className="glass-panel" 
+      onClick={() => setSelectedTicket(res)} // Opens the modal!
+      style={{ 
+        display: 'flex', padding: '20px', gap: '20px', alignItems: 'center', 
+        flexWrap: 'wrap', opacity: isPast ? 0.6 : 1, 
+        cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' 
+      }}
+      onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)'; }}
+      onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+    >
       
       {/* Poster */}
       <img src={res.showtime.movie.posterUrl || 'https://via.placeholder.com/100x150'} alt="Poster" style={{ width: '100px', borderRadius: '10px', boxShadow: '0 5px 15px rgba(0,0,0,0.5)' }} />
@@ -69,10 +80,7 @@ export default function Dashboard() {
           <h3 style={{ fontSize: '1.5rem', margin: 0 }}>{res.showtime.movie.title}</h3>
           {/* Status Badge */}
           <span style={{
-            padding: '3px 10px',
-            borderRadius: '20px',
-            fontSize: '0.75rem',
-            fontWeight: 'bold',
+            padding: '3px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold',
             backgroundColor: res.status === 'CONFIRMED' ? 'rgba(74, 222, 128, 0.2)' : res.status === 'PENDING' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(239, 68, 68, 0.2)',
             color: res.status === 'CONFIRMED' ? '#4ade80' : res.status === 'PENDING' ? '#fbbf24' : '#ef4444'
           }}>
@@ -83,25 +91,15 @@ export default function Dashboard() {
           <strong>Theatre:</strong> {res.showtime.screen.theatre.name} — {res.showtime.screen.name}
         </p>
         <p style={{ fontSize: '1rem', marginBottom: '5px' }}>
-          <strong>Time:</strong> {new Date(res.showtime.startTime).toLocaleString(undefined, { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          <strong>Time:</strong> {new Date(res.showtime.startTime).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
         <p style={{ fontSize: '1rem', marginBottom: '5px' }}>
           <strong>Seats:</strong> {res.reservedSeats.map(rs => rs.seat.row + rs.seat.number).join(', ')}
         </p>
-        <p style={{ fontSize: '1rem', color: 'var(--primary)', fontWeight: 'bold' }}>
-          <strong>Total Paid:</strong> ${res.totalAmount}
-        </p>
       </div>
-
-      {/* QR Code — only for upcoming confirmed tickets */}
-      {!isPast && res.status === 'CONFIRMED' && res.qrCode && (
-        <div style={{ textAlign: 'center', padding: '15px', backgroundColor: 'var(--bg-surface)', borderRadius: '15px', border: '1px dashed var(--primary)' }}>
-          <img src={res.qrCode} alt="Ticket QR Code" style={{ width: '120px', height: '120px', borderRadius: '10px', backgroundColor: 'white', padding: '5px' }} />
-          <p style={{ marginTop: '8px', fontWeight: 'bold', color: 'var(--primary)', letterSpacing: '2px', fontSize: '0.8rem' }}>SCAN AT DOOR</p>
-        </div>
-      )}
     </div>
   );
+
 
   if (loading) return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Loading Tickets...</h2>;
 
@@ -175,6 +173,53 @@ export default function Dashboard() {
           ))}
         </div>
       )}
+
+            {/* TICKET DETAILS MODAL */}
+      {selectedTicket && (
+        <div 
+          style={{ 
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
+            backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', 
+            justifyContent: 'center', zIndex: 1000, padding: '20px', backdropFilter: 'blur(5px)'
+          }} 
+          onClick={() => setSelectedTicket(null)}
+        >
+          <div 
+            className="glass-panel" 
+            style={{ padding: '40px', maxWidth: '450px', width: '100%', position: 'relative', textAlign: 'center', animation: 'fadeIn 0.3s ease-out' }} 
+            onClick={(e) => e.stopPropagation()} 
+          >
+            <button 
+              onClick={() => setSelectedTicket(null)} 
+              style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '2rem', cursor: 'pointer', lineHeight: '1' }}
+            >
+              &times;
+            </button>
+            
+            <h2 style={{ marginBottom: '5px', color: 'var(--primary)', fontSize: '1.8rem' }}>{selectedTicket.showtime.movie.title}</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '1.1rem' }}>{selectedTicket.showtime.screen.theatre.name} — {selectedTicket.showtime.screen.name}</p>
+
+            {/* Huge QR Code Container */}
+            {selectedTicket.status === 'CONFIRMED' && selectedTicket.qrCode ? (
+              <div style={{ padding: '15px', backgroundColor: 'white', borderRadius: '15px', display: 'inline-block', marginBottom: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+                <img src={selectedTicket.qrCode} alt="QR" style={{ width: '220px', height: '220px', display: 'block' }} />
+              </div>
+            ) : (
+              <div style={{ padding: '20px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '15px', display: 'inline-flex', marginBottom: '30px', width: '220px', height: '220px', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--glass-border)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>QR Code Unavailable</span>
+              </div>
+            )}
+
+            <div style={{ textAlign: 'left', backgroundColor: 'var(--bg-surface)', padding: '25px', borderRadius: '15px', fontSize: '1.1rem', lineHeight: '1.8' }}>
+              <p style={{ margin: 0 }}><strong>Date & Time:</strong> {new Date(selectedTicket.showtime.startTime).toLocaleString(undefined, { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+              <p style={{ margin: 0 }}><strong>Seats:</strong> {selectedTicket.reservedSeats.map(rs => rs.seat.row + rs.seat.number).join(', ')}</p>
+              <p style={{ margin: 0 }}><strong>Total Paid:</strong> <span style={{ color: '#4ade80' }}>₹{selectedTicket.totalAmount}</span></p>
+              <p style={{ margin: 0 }}><strong>Booking ID:</strong> <span style={{ fontFamily: 'monospace' }}>#{selectedTicket.id.toString().padStart(6, '0')}</span></p>
+            </div>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );

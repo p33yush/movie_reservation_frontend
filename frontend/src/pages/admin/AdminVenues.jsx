@@ -83,6 +83,31 @@ export default function AdminVenues() {
     }
   };
 
+    const handleDeleteTheatre = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this theatre and ALL its screens?')) return;
+    try {
+      const response = await fetch(`http://localhost:3000/api/theatres/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) fetchTheatres();
+      else alert(await response.text());
+    } catch (err) { alert('Failed to delete'); }
+  };
+
+  const handleDeleteScreen = async (theatreId, screenId) => {
+    if (!window.confirm('Are you sure you want to delete this screen?')) return;
+    try {
+      const response = await fetch(`http://localhost:3000/api/theatres/${theatreId}/screens/${screenId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) fetchTheatres();
+      else alert(await response.text());
+    } catch (err) { alert('Failed to delete'); }
+  };
+
+
   const inputStyle = {
     width: '100%', padding: '12px', borderRadius: '8px',
     border: '1px solid var(--glass-border)',
@@ -109,7 +134,7 @@ export default function AdminVenues() {
           <form onSubmit={handleCreateTheatre} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <input type="text" placeholder="Theatre Name" required value={theatreName} onChange={e => setTheatreName(e.target.value)} style={inputStyle} />
             <input type="text" placeholder="City" required value={city} onChange={e => setCity(e.target.value)} style={inputStyle} />
-            <input type="text" placeholder="Full Address" value={address} onChange={e => setAddress(e.target.value)} style={inputStyle} />
+            <input type="text" placeholder="Full Address" required value={address} onChange={e => setAddress(e.target.value)} style={inputStyle} />
             <button type="submit" className="btn-primary" style={{ padding: '15px', borderRadius: '10px' }}>Create Theatre</button>
           </form>
         </div>
@@ -132,23 +157,34 @@ export default function AdminVenues() {
 
       </div>
 
-      {/* THEATRE LIST */}
+            {/* THEATRE LIST */}
       <h2 style={{ marginTop: '40px', marginBottom: '20px' }}>All Theatres</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {theatres.map(theatre => (
-          <div key={theatre.id} className="glass-panel" style={{ padding: '20px' }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '5px' }}>{theatre.name}</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>{theatre.city} — {theatre.address}</p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              {theatre.screens && theatre.screens.map(screen => (
-                <span key={screen.id} style={{ padding: '5px 15px', backgroundColor: 'var(--bg-surface)', borderRadius: '20px', fontSize: '0.9rem', border: '1px solid var(--glass-border)' }}>
-                  {screen.name} ({screen.totalSeats} seats)
-                </span>
-              ))}
+          <div key={theatre.id} className="glass-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ flex: '1' }}>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '5px' }}>{theatre.name}</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>{theatre.city} — {theatre.address}</p>
+              
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {theatre.screens && theatre.screens.map(screen => (
+                  <div key={screen.id} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-surface)', borderRadius: '20px', border: '1px solid var(--glass-border)', overflow: 'hidden' }}>
+                    <span style={{ padding: '5px 15px', fontSize: '0.9rem' }}>
+                      {screen.name} ({screen.totalSeats} seats)
+                    </span>
+                    <button onClick={() => handleDeleteScreen(theatre.id, screen.id)} style={{ padding: '5px 10px', backgroundColor: '#ef4444', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>&times;</button>
+                  </div>
+                ))}
+              </div>
             </div>
+            
+            <button onClick={() => handleDeleteTheatre(theatre.id)} style={{ padding: '8px 15px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+              Delete Theatre
+            </button>
           </div>
         ))}
       </div>
+
 
     </div>
   );

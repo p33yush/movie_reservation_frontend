@@ -7,31 +7,41 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch the massive stats object we built on Backend Day 10
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/admin/stats', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        if (data.success) {
-          setStats(data.data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+    const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const fetchStats = async () => {
+    try {
+      // FIX: Changed from /dashboard to /stats
+      let url = 'http://localhost:3000/api/admin/stats?';
+      if (startDate) url += `startDate=${startDate}&`;
+      if (endDate) url += `endDate=${endDate}`;
+
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setStats(data.data);
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (token) fetchStats();
-  }, [token]);
+    // FIX: Added startDate and endDate as dependencies so it re-fetches when they change!
+  }, [token, startDate, endDate]); 
 
   if (loading) return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Loading Analytics...</h2>;
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      
+
+    
       {/* Admin Sub-Navigation */}
             {/* Admin Sub-Navigation */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '40px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -41,6 +51,29 @@ export default function AdminDashboard() {
         <Link to="/admin/venues" className="btn-primary" style={{ textDecoration: 'none', padding: '10px 20px', borderRadius: '10px', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--primary)' }}>Venues</Link>
         <Link to="/admin/showtimes" className="btn-primary" style={{ textDecoration: 'none', padding: '10px 20px', borderRadius: '10px', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--primary)' }}>Showtimes</Link>
       </div>
+      
+            {/* NEW: Date Filters */}
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', alignItems: 'center' }}>
+        <strong style={{ color: 'var(--text-muted)' }}>Filter by Date:</strong>
+        <input 
+          type="date" 
+          value={startDate} 
+          onChange={e => setStartDate(e.target.value)} 
+          style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }} 
+        />
+        <span style={{ color: 'var(--text-muted)' }}>to</span>
+        <input 
+          type="date" 
+          value={endDate} 
+          onChange={e => setEndDate(e.target.value)} 
+          style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--glass-border)', backgroundColor: 'var(--bg-surface)', color: 'white' }} 
+        />
+        {(startDate || endDate) && (
+          <button onClick={() => { setStartDate(''); setEndDate(''); }} style={{ padding: '10px 15px', backgroundColor: 'var(--glass-panel)', color: 'white', border: '1px solid var(--glass-border)', borderRadius: '8px', cursor: 'pointer' }}>
+            Clear Filters
+          </button>
+        )}
+      </div>
 
 
       {/* KPI Cards */}
@@ -48,7 +81,7 @@ export default function AdminDashboard() {
         
         <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderTop: '4px solid #4ade80' }}>
           <h3 style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>Total Revenue</h3>
-          <h1 style={{ fontSize: '3.5rem', color: '#4ade80', margin: 0 }}>${stats?.totalRevenue?.toFixed(2) || '0.00'}</h1>
+          <h1 style={{ fontSize: '3.5rem', color: '#4ade80', margin: 0 }}>₹{stats?.totalRevenue?.toFixed(2) || '0.00'}</h1>
         </div>
         
         <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderTop: '4px solid #60a5fa' }}>
@@ -81,7 +114,7 @@ export default function AdminDashboard() {
                 <tr key={index} style={{ borderBottom: '1px solid var(--glass-border)' }}>
                   <td style={{ padding: '15px', fontSize: '1.2rem', fontWeight: 'bold' }}>{movie.title}</td>
                   <td style={{ padding: '15px', textAlign: 'right', color: '#4ade80', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                    ${movie.revenue.toFixed(2)}
+                    ₹{movie.revenue.toFixed(2)}
                   </td>
                 </tr>
               ))}
