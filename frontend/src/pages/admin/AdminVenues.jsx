@@ -85,25 +85,40 @@ export default function AdminVenues() {
 
     const handleDeleteTheatre = async (id) => {
     if (!window.confirm('Are you sure you want to delete this theatre and ALL its screens?')) return;
+
+    const el = document.getElementById(`theatre-${id}`);
+    if (el) el.classList.add('animate-exit');
+
     try {
       const response = await fetch(`http://localhost:3000/api/theatres/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) fetchTheatres();
-      else alert(await response.text());
-    } catch (err) { alert('Failed to delete'); }
+
+      if (response.ok) setTimeout(()=>  fetchTheatres(),300);
+      else {
+        if (el) el.classList.remove('animate-exit');
+        alert(await response.text());
+      }
+    }catch (err) { alert('Failed to delete'); }
   };
 
   const handleDeleteScreen = async (theatreId, screenId) => {
     if (!window.confirm('Are you sure you want to delete this screen?')) return;
+
+    const el = document.getElementById(`screen-${screenId}`);
+    if (el) el.classList.add('animate-exit');
+
     try {
       const response = await fetch(`http://localhost:3000/api/theatres/${theatreId}/screens/${screenId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) fetchTheatres();
-      else alert(await response.text());
+      if (response.ok) setTimeout(() => fetchTheatres(), 300);
+      else {
+        if (el) el.classList.remove('animate-exit');
+        alert(await response.text());
+      }
     } catch (err) { alert('Failed to delete'); }
   };
 
@@ -130,7 +145,7 @@ export default function AdminVenues() {
 
         {/* CREATE THEATRE */}
         <div className="glass-panel" style={{ padding: '30px' }}>
-          <h2 style={{ marginBottom: '20px' }}>Create Theatre</h2>
+          <h2 style={{ marginBottom: '20px' }}>Add Theatre</h2>
           <form onSubmit={handleCreateTheatre} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <input type="text" placeholder="Theatre Name" required value={theatreName} onChange={e => setTheatreName(e.target.value)} style={inputStyle} />
             <input type="text" placeholder="City" required value={city} onChange={e => setCity(e.target.value)} style={inputStyle} />
@@ -141,7 +156,7 @@ export default function AdminVenues() {
 
         {/* CREATE SCREEN */}
         <div className="glass-panel" style={{ padding: '30px' }}>
-          <h2 style={{ marginBottom: '20px' }}>Create Screen</h2>
+          <h2 style={{ marginBottom: '20px' }}>Add Screen</h2>
           <form onSubmit={handleCreateScreen} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <select required value={selectedTheatreId} onChange={e => setSelectedTheatreId(e.target.value)} style={inputStyle}>
               <option value="">Select a Theatre</option>
@@ -161,14 +176,14 @@ export default function AdminVenues() {
       <h2 style={{ marginTop: '40px', marginBottom: '20px' }}>All Theatres</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {theatres.map(theatre => (
-          <div key={theatre.id} className="glass-panel" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div key={theatre.id} id={`theatre-${theatre.id}`} className="glass-panel hover-lift animate-enter" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: '1' }}>
               <h3 style={{ fontSize: '1.3rem', marginBottom: '5px' }}>{theatre.name}</h3>
               <p style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>{theatre.city} — {theatre.address}</p>
               
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 {theatre.screens && theatre.screens.map(screen => (
-                  <div key={screen.id} style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-surface)', borderRadius: '20px', border: '1px solid var(--glass-border)', overflow: 'hidden' }}>
+                  <div key={screen.id} id={`screen-${screen.id}`} className="animate-enter" style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-surface)', borderRadius: '20px', border: '1px solid var(--glass-border)', overflow: 'hidden' }}>
                     <span style={{ padding: '5px 15px', fontSize: '0.9rem' }}>
                       {screen.name} ({screen.totalSeats} seats)
                     </span>
@@ -184,8 +199,6 @@ export default function AdminVenues() {
           </div>
         ))}
       </div>
-
-
     </div>
   );
 }

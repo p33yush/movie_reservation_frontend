@@ -113,26 +113,56 @@ export default function AdminMovies() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '40px' }}>
         
-        {/* ADD MOVIE FORM */}
+                {/* ADD MOVIE FORM */}
         <Card style={{ height: 'fit-content' }}>
-          <h2 style={{ marginBottom: '20px' }}>Add New Movie</h2>
-          <form onSubmit={handleCreateMovie} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <Input type="text" placeholder="Movie Title" required value={title} onChange={e => setTitle(e.target.value)} />
-            <Input type="number" placeholder="Duration (mins)" required value={duration} onChange={e => setDuration(e.target.value)}  />
-            <Input type="number" step="0.1" placeholder="Rating (0-10)" required value={rating} onChange={e => setRating(e.target.value)}  />
-            <Input type="text" placeholder="Genre (e.g. Action, Sci-Fi)" value={genre} onChange={e => setGenre(e.target.value)} />
-            <Input type="date" placeholder="Release Date" value={releaseDate} onChange={e => setReleaseDate(e.target.value)} />
-            <Input type="text" placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
-            <Select value={status} onChange={e => setStatus(e.target.value)}>
-              <option value="COMING_SOON">Coming Soon</option>
-              <option value="NOW_SHOWING">Now Showing</option>
-              <option value="ENDED">Ended</option>
-            </Select>
-            <Input type="url" placeholder="Poster Image URL" value={posterUrl} onChange={e => setPosterUrl(e.target.value)}  />
+          <h2 style={{ marginBottom: '25px' }}>Add New Movie</h2>
+          <form onSubmit={handleCreateMovie} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             
-            <Button type="submit" style={{ padding: '15px', marginTop: '10px', borderRadius: '10px' }}>Add Movie to Database</Button>
+            {/* Basic Information */}
+            <div>
+              <h3 style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '15px' }}>Basic Information</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <Input type="text" placeholder="Movie Title" required value={title} onChange={e => setTitle(e.target.value)} />
+                <Input type="text" placeholder="Genre (e.g. Action, Sci-Fi)" value={genre} onChange={e => setGenre(e.target.value)} />
+                <Input type="date" placeholder="Release Date" value={releaseDate} onChange={e => setReleaseDate(e.target.value)} />
+              </div>
+            </div>
+
+
+            {/* Movie Details */}
+            <div>
+              <h3 style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '15px' }}>Movie Details</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <Input type="number" placeholder="Duration (mins)" required value={duration} onChange={e => setDuration(e.target.value)}  />
+                <Input type="number" step="0.1" placeholder="Rating (0-10)" required value={rating} onChange={e => setRating(e.target.value)}  />
+                <Select value={status} onChange={e => setStatus(e.target.value)} style={{ height: '46px' }}>
+                  <option value="COMING_SOON">Coming Soon</option>
+                  <option value="NOW_SHOWING">Now Showing</option>
+                  <option value="ENDED">Ended</option>
+                </Select>
+              </div>
+            </div>
+
+
+            {/* Media */}
+            <div>
+              <h3 style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '15px' }}>Media</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <Input type="url" placeholder="Poster Image URL" value={posterUrl} onChange={e => setPosterUrl(e.target.value)}  />
+                <textarea 
+                  className="form-input" 
+                  placeholder="Description" 
+                  value={description} 
+                  onChange={e => setDescription(e.target.value)} 
+                />
+
+              </div>
+            </div>
+            
+            <Button type="submit" style={{ padding: '15px', marginTop: '10px', borderRadius: '10px' }}>Add Movie</Button>
           </form>
         </Card>
+
 
         {/* MOVIE LIST */}
         <Card style={{ padding: '30px' }}>

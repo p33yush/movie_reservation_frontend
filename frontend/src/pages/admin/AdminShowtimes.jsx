@@ -77,23 +77,33 @@ export default function AdminShowtimes() {
     }
   };
 
-  const handleDelete = async (id) => {
+    const handleDelete = async (id) => {
     if (!window.confirm('Delete this showtime?')) return;
+    
+    // Trigger the CSS collapse animation!
+    const el = document.getElementById(`showtime-${id}`);
+    if (el) el.classList.add('animate-exit');
+
     try {
       const response=await fetch(`http://localhost:3000/api/showtimes/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      // Wait 300ms for animation to finish before updating state
       if(response.ok){
-        fetchShowtimes();
-      }else{
+        setTimeout(() => fetchShowtimes(), 300);
+      } else {
+        if (el) el.classList.remove('animate-exit');
         const errorData=await response.json();
-        alert(errorData.error || "Failed to delete showtime. There's a booked reservation for this.");
+        alert(errorData.error || "Failed to delete showtime.");
       }
     } catch (err) {
+      if (el) el.classList.remove('animate-exit');
       alert('Failed to delete');
     }
   };
+
 
   // Build a flat list of all screens across all theatres for the dropdown
   const allScreens = [];
@@ -152,7 +162,7 @@ export default function AdminShowtimes() {
         </form>
       </Card>
 
-            {/* SHOWTIMES LIST */}
+                  {/* SHOWTIMES LIST */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
         <h2 style={{ margin: 0 }}>All Showtimes</h2>
         
@@ -175,9 +185,10 @@ export default function AdminShowtimes() {
           </Select>
         </div>
       </div>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         {showtimes.map(st => (
-          <div key={st.id} className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <div key={st.id} id={`showtime-${st.id}`} className="glass-panel hover-lift animate-enter" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', flexWrap: 'wrap', gap: '10px' }}>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{st.movie?.title || 'Unknown Movie'}</h3>
               <p style={{ color: 'var(--text-muted)', margin: '5px 0 0' }}>

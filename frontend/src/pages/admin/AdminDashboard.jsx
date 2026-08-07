@@ -6,6 +6,8 @@ import Card from '../../components/ui/Card';
 import Select from '../../components/ui/Select';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import AnimatedNumber from '../../components/ui/AnimatedNumber';
+
 
 export default function AdminDashboard() {
   const { token } = useAuth();
@@ -57,21 +59,20 @@ export default function AdminDashboard() {
         <Link to="/admin/showtimes" className="btn-primary" style={{ textDecoration: 'none', padding: '10px 20px', borderRadius: '10px', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--primary)' }}>Showtimes</Link>
       </div>
       
-            {/* NEW: Date Filters */}
+                       {/* Date Filters */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', alignItems: 'center' }}>
         <strong style={{ color: 'var(--text-muted)' }}>Filter by Date:</strong>
         <Input 
           type="date" 
           value={startDate} 
           onChange={e => setStartDate(e.target.value)} 
-         
         />
         <span style={{ color: 'var(--text-muted)' }}>to</span>
         <Input
-  type="date"
-  value={endDate}
-  onChange={e => setEndDate(e.target.value)}
-/>
+          type="date"
+          value={endDate}
+          onChange={e => setEndDate(e.target.value)}
+        />
         {(startDate || endDate) && (
           <Button onClick={() => { setStartDate(''); setEndDate(''); }} >
             Clear Filters
@@ -80,50 +81,67 @@ export default function AdminDashboard() {
       </div>
 
 
-      {/* KPI Cards */}
+
+
+            {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '50px' }}>
         
-        <Card  style={{ padding: '30px', textAlign: 'center', borderTop: '4px solid var(--success)' }}>
+        <Card style={{ padding: '30px', textAlign: 'center', border: 'none', borderTop: '4px solid var(--success)' }}>
           <h3 style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>Total Revenue</h3>
-          <h1 style={{ fontSize: '3.5rem', color: 'var(--success)', margin: 0 }}>₹{stats?.totalRevenue?.toFixed(2) || '0.00'}</h1>
+          <h1 style={{ fontSize: '3.5rem', color: 'var(--success)', margin: 0 }}>
+  <AnimatedNumber end={stats?.totalRevenue || 0} decimals={2} prefix="₹" />
+</h1>
+
         </Card>
         
-        <Card  style={{ padding: '30px', textAlign: 'center', borderTop: '4px solid var(--secondary)' }}>
+        <Card style={{ padding: '30px', textAlign: 'center', border: 'none', borderTop: '4px solid var(--secondary)' }}>
           <h3 style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>Tickets Sold</h3>
-          <h1 style={{ fontSize: '3.5rem', color: 'var(--secondary)', margin: 0 }}>{stats?.ticketsSold || 0}</h1>
+          <h1 style={{ fontSize: '3.5rem', color: 'var(--secondary)', margin: 0 }}>
+  <AnimatedNumber end={stats?.ticketsSold || 0} />
+</h1>
+
         </Card>
 
-        <Card  style={{ padding: '30px', textAlign: 'center', borderTop: '4px solid #a78bfa' }}>
+        <Card style={{ padding: '30px', textAlign: 'center', border: 'none', borderTop: '4px solid #a78bfa' }}>
           <h3 style={{ color: 'var(--text-muted)', marginBottom: '10px' }}>Registered Users</h3>
-          <h1 style={{ fontSize: '3.5rem', color: '#a78bfa', margin: 0 }}>{stats?.totalUsers || 0}</h1>
+         <h1 style={{ fontSize: '3.5rem', color: '#a78bfa', margin: 0 }}>
+  <AnimatedNumber end={stats?.totalUsers || 0} />
+</h1>
+
         </Card>
 
       </div>
 
-      {/* Revenue by Movie Table */}
+
+            {/* Revenue by Movie Table */}
       <h2>Revenue by Movie</h2>
       <div className="glass-panel" style={{ marginTop: '20px', padding: '20px' }}>
         {stats?.revenueByMovie?.length === 0 ? (
           <p style={{ color: 'var(--text-muted)' }}>No revenue data available yet.</p>
         ) : (
-          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                    <table className="data-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                <th style={{ padding: '15px', color: 'var(--text-muted)' }}>MOVIE TITLE</th>
-                <th style={{ padding: '15px', textAlign: 'right', color: 'var(--text-muted)' }}>TOTAL EARNED</th>
+              <tr>
+                <th>MOVIE TITLE</th>
+                <th style={{ textAlign: 'center' }}>TICKETS SOLD</th>
+                <th style={{ textAlign: 'right' }}>TOTAL EARNED</th>
               </tr>
             </thead>
             <tbody>
               {stats?.revenueByMovie?.map((movie, index) => (
-                <tr key={index} style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                  <td style={{ padding: '15px', fontSize: '1.2rem', fontWeight: 'bold' }}>{movie.title}</td>
-                  <td style={{ padding: '15px', textAlign: 'right', color: 'var(--success)', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                <tr key={index}>
+                  <td style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{movie.title}</td>
+                  <td style={{ textAlign: 'center', color: 'var(--secondary)', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                    {movie.tickets}
+                  </td>
+                  <td style={{ textAlign: 'right', color: 'var(--success)', fontSize: '1.2rem', fontWeight: 'bold' }}>
                     ₹{movie.revenue.toFixed(2)}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
         )}
       </div>
 
