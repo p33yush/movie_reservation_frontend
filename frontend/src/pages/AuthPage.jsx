@@ -8,6 +8,7 @@ export default function AuthPage() {
   // Login state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword]=useState('');
 
   // Register-only state
   const [name, setName] = useState('');
@@ -39,6 +40,10 @@ export default function AuthPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    if(password !== confirmPassword){
+      setError('Passwords do not match');
+      return;
+    }
     try {
       const response = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
@@ -75,32 +80,39 @@ export default function AuthPage() {
       <div className="auth-card-wrapper">
         <div className="glass-panel" style={{ padding: '40px' }}>
 
+              {/* Welcome Header */}
+        <div className="auth-header">
+          <h2 className="auth-title">
+            {isLogin ? 'Welcome Back' : 'Create Your Account'}
+          </h2>
+          <p className="auth-subtitle">
+            {isLogin 
+              ? 'Sign in to continue booking your favorite movies.' 
+              : 'Join MovieRes and book movies in seconds.'}
+          </p>
+        </div>
+        
+        {/* Divider */}
+        <hr style={{ border: 'none', borderTop: '1px solid var(--glass-border)', margin: '0 0 25px 0' }} />
 
-        {/* Tab Toggle */}
+
+
+                {/* Tab Toggle */}
         <div style={{ display: 'flex', marginBottom: '25px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
           <button
             onClick={() => switchTab(true)}
-            style={{
-              flex: 1, padding: '12px', fontWeight: 'bold', fontSize: '1rem',
-              backgroundColor: isLogin ? 'var(--primary)' : 'transparent',
-              color: isLogin ? 'white' : 'var(--text-muted)',
-              transition: 'all 0.3s ease'
-            }}
+            className={`auth-tab ${isLogin ? 'active' : ''}`}
           >
             Sign In
           </button>
           <button
             onClick={() => switchTab(false)}
-            style={{
-              flex: 1, padding: '12px', fontWeight: 'bold', fontSize: '1rem',
-              backgroundColor: !isLogin ? 'var(--primary)' : 'transparent',
-              color: !isLogin ? 'white' : 'var(--text-muted)',
-              transition: 'all 0.3s ease'
-            }}
+            className={`auth-tab ${!isLogin ? 'active' : ''}`}
           >
             Create Account
           </button>
         </div>
+
 
         {/* Error Display */}
         {error && (
@@ -129,6 +141,32 @@ export default function AuthPage() {
             <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-muted)' }}>Password</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength="6" style={inputStyle} />
           </div>
+
+                    {/* Confirm Password field — only visible during Register */}
+          {!isLogin && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', color: 'var(--text-muted)' }}>Confirm Password</label>
+              <input 
+                type="password" 
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)} 
+                required 
+                minLength="6" 
+                style={inputStyle} 
+              />
+            </div>
+          )}
+                    {/* Terms and Privacy Checkbox */}
+          {!isLogin && (
+            <label className="auth-checkbox-container">
+              <input type="checkbox" required />
+              <span className="auth-checkbox-label">
+                I agree to the <span style={{ color: 'white' }}>Terms</span> & <span style={{ color: 'white' }}>Privacy Policy</span>
+              </span>
+            </label>
+          )}
+
+
 
           <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
             {isLogin ? 'Sign In' : 'Register'}
