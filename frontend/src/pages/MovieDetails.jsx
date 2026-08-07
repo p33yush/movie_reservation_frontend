@@ -46,35 +46,49 @@ export default function MovieDetails() {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       
-      {/* Top Section: Movie Info */}
-      <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', marginBottom: '50px' }}>
-        {/* Poster */}
-        <div style={{ flex: '1', minWidth: '300px' }}>
+              {/* Cinematic Hero Section */}
+      <div className="movie-hero-container">
+        
+        {/* Blurred Background */}
+        <div 
+          className="movie-hero-bg" 
+          style={{ backgroundImage: `url(${movie.posterUrl || 'https://via.placeholder.com/1000'})` }}
+        ></div>
+        
+        {/* Gradient Fade to Background */}
+        <div className="movie-hero-overlay"></div>
+        
+        {/* Content */}
+        <div className="movie-hero-content">
           <img 
             src={movie.posterUrl || 'https://via.placeholder.com/300x450?text=No+Poster'} 
             alt={movie.title}
-            style={{ width: '100%', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+            className="movie-hero-poster"
           />
-        </div>
-        
-        {/* Details */}
-        <div style={{ flex: '2', minWidth: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <h1 style={{ fontSize: '3rem', marginBottom: '10px' }}>{movie.title}</h1>
           
-          <div style={{ display: 'flex', gap: '15px', color: 'var(--text-muted)', marginBottom: '20px', fontSize: '1.1rem' }}>
-            <span>{movie.genre}</span>
-            <span>•</span>
-            <span>{movie.duration} minutes</span>
-            <span>•</span>
-            <span style={{ color: '#fbbf24' }}>⭐ {movie.rating}/10</span>
+          <div className="movie-hero-info">
+            <h1>{movie.title}</h1>
+            
+            <div className="movie-hero-meta">
+              <span style={{ backgroundColor: 'rgba(255,255,255,0.1)', padding: '4px 12px', borderRadius: '6px', color: 'white', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                {movie.genre}
+              </span>
+              <span>•</span>
+              <span>{movie.duration} min</span>
+              <span>•</span>
+              <span style={{ color: '#fbbf24', fontWeight: 'bold' }}>⭐ {movie.rating || 'N/A'}/10</span>
+              <span>•</span>
+              <span>{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : '2026'}</span>
+            </div>
+            
+            <p className="movie-hero-synopsis">
+              {movie.description}
+            </p>
           </div>
-          
-          <p style={{ fontSize: '1.2rem', lineHeight: '1.6', marginBottom: '30px' }}>
-            {movie.description}
-          </p>
         </div>
       </div>
 
+            
             {/* Bottom Section: Showtimes Grouped by Venue */}
       <div className="glass-panel" style={{ padding: '30px' }}>
         <h2 style={{ marginBottom: '20px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '10px' }}>

@@ -67,9 +67,14 @@ export default function AuthPage() {
     outline: 'none'
   };
 
+
   return (
-    <div style={{ maxWidth: '400px', margin: '40px auto' }} className="glass-panel">
-      <div style={{ padding: '30px' }}>
+    <div className="auth-page-wrapper">
+      <div className="auth-page-overlay"></div>
+      
+      <div className="auth-card-wrapper">
+        <div className="glass-panel" style={{ padding: '40px' }}>
+
 
         {/* Tab Toggle */}
         <div style={{ display: 'flex', marginBottom: '25px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
@@ -132,5 +137,6 @@ export default function AuthPage() {
 
       </div>
     </div>
+  </div>
   );
 }
